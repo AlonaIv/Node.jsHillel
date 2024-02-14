@@ -5,6 +5,10 @@ import { resolve } from 'path';
 const getUsers = async (req, res) => {
     try {
         let readResult = await readUsers();
+        
+        if (true === readResult.hasOwnProperty('data')) {
+            readResult['data'] = '{"users":[' + readResult['data'].slice(0, -1) +']}';
+        }
 
         return readResult;
     } catch (error) {
@@ -21,27 +25,25 @@ const createUsers = async (req, res) => {
     }
     
     try {
-        let writeResult = await writeUsers(data.users);
+        let writeResult = await writeUsers(data.user);
         return writeResult;
     } catch (error) {
         return error;
     }
 };
 
-function validateUsers(users) {
-    if (true === users.hasOwnProperty('users')) {
-        for (const user of users.users) {
-            if (false === user.hasOwnProperty('login') || false === user.hasOwnProperty('password')) {
+function validateUsers(user) {
+    if (true === user.hasOwnProperty('user')) {
+            if (false === user.user.hasOwnProperty('login') || false === user.user.hasOwnProperty('password')) {
                 return {
                     "code": 400,
-                    "body": `Invalid user data. User: ${ user.login || 'empty'}, ${ user.password || 'empty'},`
+                    "body": `Invalid user data. User: login: ${ user.user.login || 'empty'}, password: ${ user.user.password || 'empty'},`
                 };
             }
-        }
     } else {
         return {
             "code": 400,
-            "body": 'Users is required.'
+            "body": 'User is required.'
         };
     }
 
@@ -53,7 +55,7 @@ function validateUsers(users) {
 
 function writeUsers(users) {
     return new Promise((resolve, reject) => {
-        fs.writeFile('db.json', JSON.stringify(users))
+        fs.appendFile('db.json', JSON.stringify(users) + ',')
         .then(() => resolve({
             "code": 200,
             "body": 'Users were written'
