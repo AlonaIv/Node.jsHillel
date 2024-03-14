@@ -3,17 +3,21 @@ import 'dotenv/config';
 import { app } from "./Routes/api.js";
 import fs from 'fs';
 
-if (!fs.existsSync("./images")) {
-    fs.mkdir("./images", function(err) {
+const dirs = ['./uploads', './images'];
+
+dirs.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdir(dir, function(err) {
         if (err) {
           console.log(err)
         } else {
-          console.log("New directory successfully created.")
+          console.log("New directory successfully created.", dir)
         }
     });
 } else {
-    console.log("Directory already exists.");
+    console.log("Directory already exists.", dir);
 }
+});
 
 const PORT = process.env.PORT || 3000;
 
