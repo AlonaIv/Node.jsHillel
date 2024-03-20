@@ -1,8 +1,7 @@
-import { userCreateValidationSchema } from "../validationSchemas/userValidationSchemas.js";
 import bcrypt from 'bcrypt';
 
 const salt = 10;
-var users  = [
+let users  = [
     {
         username: "TestUser",
         password: "$2b$10$FC8ScEhPLdNsWTDzeZ/gxerqW53SMLMsJ76C.irBdw.U1mfjBBys6",
@@ -11,37 +10,30 @@ var users  = [
 ];
 
 const signup = async (req, res) => {
-    const { error, value } = userCreateValidationSchema.validate(req.body);
+    const { username, password, email} = req.body;
 
-    if (error) {
-        return {
-            'code': 400,
-            'body':  error.details[0].message
-        }
-      } else {
-        for (const user of users) {
-            if (user.username === value.username) {
-                return {
-                    'code': 400,
-                    'body':  "User alredy exist"
-                }
-            }       
-        }
-        const password = await bcrypt.hash(value.password, salt);
-        
-        users.push(
-            {
-                username: value.username,
-                password: {password},
-                email: value.email || null
+    for (const user of users) {
+        if (user.username === username) {
+            return {
+                code: 400,
+                body:  "User alredy exist"
             }
-        );
-
-         return {
-            'code': 201,
-            'body': "User was created" 
+        }       
+    }
+    const userPassword = await bcrypt.hash(password, salt);
+    
+    users.push(
+        {
+            username: username,
+            password: userPassword,
+            email: email || null
         }
-      }
+    );
+
+    return {
+        code: 201,
+        body: "User was created" 
+    }
 };
 
 export { signup };

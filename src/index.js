@@ -29,10 +29,9 @@ app.get('/something', logRequest, (req, res) => {
 app.use(function (err, req, res, next) {
   if (err.message) {
     res.status(400).send(err.message);
+  } else {
+    res.status(500).send('Something went wrong');
   }
-
-  res.status(500).send('Something went wrong');
-  next();
 });
 
 //point 5

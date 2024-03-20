@@ -1,8 +1,7 @@
-import { userLoginValidationSchema } from "../validationSchemas/userValidationSchemas.js";
 import bcrypt from 'bcrypt';
 
 const salt = 10;
-var users  = [
+let users  = [
     {
         username: "TestUser",
         password: "$2b$10$FC8ScEhPLdNsWTDzeZ/gxerqW53SMLMsJ76C.irBdw.U1mfjBBys6",
@@ -11,30 +10,25 @@ var users  = [
 ];
 
 const login = async (req, res) => {
-    const { error, value } = userLoginValidationSchema.validate(req.body);
+    const { username, password } = req.body;
 
-    if (error) {
-        return {
-            'code': 401,
-            'body':  error.details[0].message
-        }
-      } else {
-        for (const user of users) {
-            const passwordVerify = await bcrypt.compare(value.password, user.password);
+    for (const user of users) {
+        if (user.username === username) {
+            const passwordVerify = await bcrypt.compare(password, user.password);
 
-            if (user.username === value.username && true === passwordVerify) {
+            if (true === passwordVerify) {
                 return {
-                    'code': 200,
-                    'body':  "Successful login"
+                    code: 200,
+                    body:  "Successful login"
                 }
-            }     
+            }        
         }
+    }
 
-        return {
-            'code': 401,
-            'body':  "Not authorised"
-        }
-      }
+    return {
+        code: 401,
+        body:  "Not authorised"
+    }
 };
 
 export { login };
