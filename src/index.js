@@ -1,10 +1,14 @@
 import 'dotenv/config';
 // import { app } from "./server.js";
 import { app } from "./Routes/api.js";
+import { dataRouter } from "./Routes/hw7_task2.js";
 import { router1, router2 } from "./Routes/routesHW6.js";
+import { signupRouter, signinRouter } from "./Routes/userAuth.js";
 import fs from 'fs';
 
+app.use(signupRouter, signinRouter);
 app.use(router1, router2);
+app.use(dataRouter);
 
 function logRequest(req, res, next) {
   console.log(`Request made to ${req.url}`);
@@ -23,8 +27,11 @@ app.get('/something', logRequest, (req, res) => {
 
 //point 4
 app.use(function (err, req, res, next) {
-  console.error(err.stack);
-  res.status(500).send('Something went wrong');
+  if (err.message) {
+    res.status(400).send(err.message);
+  } else {
+    res.status(500).send('Something went wrong');
+  }
 });
 
 //point 5
